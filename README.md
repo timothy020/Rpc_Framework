@@ -212,21 +212,21 @@ struct ServiceInfo
 std::unordered_map<std::string, ServiceInfo> m_servicemap;
 ```
 
-| 完整实现参考：rpcprovider.cc->pulishService
+> 完整实现参考：rpcprovider.cc->pulishService
 
 ## 异步日志设计
 写日志信息到文件使用磁盘I/O，若直接放到RPC方法调用的业务中，会影响RPC请求->RPC方法执行->RPC响应整个流程的速度，因此在Looger日志模块和RPC业务之间添加一个消息队列作为中间件，Muduo只负责向消息中间件添加日志信息，在新线程中Logger模块从消息队列读日志信息，并执行IO磁盘操作，实现了写日志和磁盘IO操作的解耦；
 
-| 异步指Muduo中业务线程不用等待日志写入文件，将日志信息添加到消息队列中，即可继续执行业务逻辑；
+> 异步指Muduo中业务线程不用等待日志写入文件，将日志信息添加到消息队列中，即可继续执行业务逻辑；
 
 ![Alt text](imgs/image-8.png)
 
 - 线程安全：多个线程同时操作消息队列，因此，在队列的push和pop方法中添加mutex锁保证线程安全；
 - 线程通信：pop操作中，若消息队列为空，则一直等待，同时Muduo无法获取锁，而不能添加消息，此时造成死锁；因此，在push和pop间使用condition_variable条件变量实现线程通信，当push操作执行后，通知pop操作可以取锁执行；
 
-| 完整实现参考：lockqueue.h
+> 完整实现参考：lockqueue.h
 
-| 一个功能更加强大的消息中间件：kafka
+> 一个功能更加强大的消息中间件：kafka
 
 
 ## 通信协议设计
