@@ -1,0 +1,40 @@
+syntax = "proto3"; //声明了protobuf的版本
+
+package fixbug;  //声明了代码所在的包(对于c++来说相当于namespace)
+
+// 定义下面的选项，表示生成service服务类和rpc方法描述，默认不生成
+option cc_generic_services = true;
+
+message LoginRequst
+{
+    bytes name = 1;
+    bytes pwd = 2;
+}
+
+message LoginResponse
+{
+    bool success = 1;
+    bytes msg = 2;
+}
+
+message Friend
+{
+    bytes name = 1;
+    enum Sex
+    {
+        WOMAN=0;
+        MAN=1;
+    };
+    Sex sex = 2;
+}
+
+message FriendList
+{
+    repeated Friend friendlist = 1;
+}
+
+service LoginService
+{
+    rpc UserLogin(LoginRequst) returns(LoginResponse);
+    rpc GetFriendList(FriendList) returns(FriendList);
+}
